@@ -29,7 +29,21 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      - name: Setup Java JDK
+      - name: Fix Kotlin Duplicate Classes Conflict
+        run: |
+          # gradle.properties में डुप्लीकेट क्लास एरर को बायपास करने का नियम जोड़ें
+          echo "android.enableJetifier=true" >> android/gradle.properties
+          
+          # app/build.gradle में डुप्लीकेट कॉटलिन लाइब्रेरी एक्सक्लूड करें
+          cat << 'EOF' >> android/app/build.gradle
+
+          configurations.all {
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+          }
+          EOF
+
+      - name: Setup Java JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -39,7 +53,7 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
