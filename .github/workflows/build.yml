@@ -53,8 +53,7 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
-signingReport
+          ./gradlew assembleDebug signingReport
  --no-daemon
 
       - name: Upload APK
